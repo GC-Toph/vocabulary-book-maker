@@ -26,8 +26,7 @@ impl Hamming {
 
         for i in 1..m + 1 {
             for j in 1..n + 1 {
-                let diff = a.get(i - 1).unwrap() != b.get(j - 1).unwrap();
-                let diff = match diff {
+                let diff = match a[i - 1] != b[j - 1] {
                     true => 1,
                     false => 0,
                 };

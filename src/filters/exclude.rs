@@ -7,23 +7,25 @@ use std::{fs, io};
 
 pub fn exclude(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>> {
     let words_exclude = fs::read_to_string("exclude.txt")?;
-    let words_exclude: Vec<&str> = words_exclude.split("\n").collect();
 
     let mut ret: Vec<String> = Vec::new();
     for word in words {
-        for ex_word in words_exclude.iter().copied() {
+        let mut psh = true;
+        for ex_word in words_exclude.lines() {
             if word.as_str() == ex_word {
+                psh = false;
                 break;
             }
         }
-        ret.push(word);
+        if psh {
+            ret.push(word)
+        };
     }
     Ok(ret)
 }
 
 pub fn exclude_hamming(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>> {
     let words3500 = fs::read_to_string("exclude_3500.txt")?;
-    let words3500: Vec<&str> = words3500.split("\n").collect();
 
     println!("Please Input threshold of Hamming filter in 3500words (defalut as 0.24): ");
     let mut threshold = 0.24;
@@ -44,14 +46,18 @@ pub fn exclude_hamming(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>
     Ok(ret)
 }
 
-fn word_hamming_test(word: &str, words3500: &Vec<&str>, threshold: f64, ham: &mut Hamming) -> bool {
-    for learned in words3500.iter().copied() {
+fn word_hamming_test(word: &str, words3500: &String, threshold: f64, ham: &mut Hamming) -> bool {
+    for learned in words3500.lines() {
         if threshold == 0 as f64 {
-            return learned != word;
-        } else if (ham.dist(learned, word) as f64) / (max(learned.len(), word.len()) as f64)
-            <= threshold
-        {
-            return false;
+            if learned == word {
+                return false;
+            }
+        } else {
+            if (ham.dist(learned, word) as f64) / (max(learned.len(), word.len()) as f64)
+                <= threshold
+            {
+                return false;
+            }
         }
     }
     return true;
