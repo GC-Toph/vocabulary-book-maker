@@ -21,14 +21,17 @@ pub fn main_filter(origin_text: String) -> Result<Vec<String>, Box<dyn Error>> {
     // let re = Regex::new(r"[a-z]+ed ").unwrap();
     // let re = Regex::new(r"[a-z]+ly ").unwrap();
     // let re = Regex::new(r"[a-z]+s ").unwrap();
-    let ret: Vec<&str> = ret.split(' ').collect();
-
+    let list: Vec<&str> = ret.split(' ').collect();
+    let mut list_for_iter: Vec<&str> = Vec::new();
     //use hash map to stat freq
-    let mut hm: HashMap<String, u32> = HashMap::new();
+    let mut hm: HashMap<&str, u32> = HashMap::new();
     let mut tot_num: u64 = 0;
-    for ele in ret {
+    for ele in list {
         if ele.len() >= MIN_WORD_LENGTH && ele.len() <= MAX_WORD_LENGTH {
-            let cnt = hm.entry(String::from(ele)).or_insert(0);
+            let cnt = hm.entry(ele).or_insert(0);
+            if *cnt == 0u32 {
+                list_for_iter.push(ele);
+            }
             *cnt += 1;
             tot_num += 1;
         }
@@ -59,9 +62,14 @@ pub fn main_filter(origin_text: String) -> Result<Vec<String>, Box<dyn Error>> {
 
     //construct ret value
     let mut ret: Vec<String> = Vec::new();
-    for (k, v) in hm {
-        if v >= freq {
-            ret.push(k);
+    // for (k, v) in hm {
+    //     if v >= freq {
+    //         ret.push(k);
+    //     }
+    // }
+    for k in list_for_iter {
+        if hm[k] >= freq {
+            ret.push(String::from(k));
         }
     }
     return Ok(ret);

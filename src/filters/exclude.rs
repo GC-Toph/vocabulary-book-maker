@@ -11,16 +11,12 @@ pub fn exclude(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>> {
 
     let mut ret: Vec<String> = Vec::new();
     for word in words {
-        let mut psh = true;
         for ex_word in words_exclude.iter().copied() {
             if word.as_str() == ex_word {
-                psh = false;
                 break;
             }
         }
-        if psh {
-            ret.push(word);
-        }
+        ret.push(word);
     }
     Ok(ret)
 }
@@ -53,7 +49,7 @@ fn word_hamming_test(word: &str, words3500: &Vec<&str>, threshold: f64, ham: &mu
         if threshold == 0 as f64 {
             return learned != word;
         } else if (ham.dist(learned, word) as f64) / (max(learned.len(), word.len()) as f64)
-            < threshold
+            <= threshold
         {
             return false;
         }
