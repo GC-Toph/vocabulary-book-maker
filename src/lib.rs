@@ -37,7 +37,6 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let mut file = fs::File::create("out_4_ham.txt")?;
     file.write_all(after_hamming.join("\n").as_bytes())?;
 
-    // let result;
     if config.is_shuffle {
         let after_shuffle = filters::shuffle(&mut after_hamming);
         let mut file = fs::File::create("out_5_shuffle.txt")?;
