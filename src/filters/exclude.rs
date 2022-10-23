@@ -8,19 +8,17 @@ use std::{fs, io};
 pub fn exclude(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>> {
     let words_exclude = fs::read_to_string("exclude.txt")?;
 
-    let mut ret: Vec<String> = Vec::new();
-    for word in words {
-        let mut psh = true;
-        for ex_word in words_exclude.lines() {
-            if word.as_str() == ex_word {
-                psh = false;
-                break;
+    let ret: Vec<_> = words
+        .into_iter()
+        .filter(|word| {
+            for ex_word in words_exclude.lines() {
+                if word.as_str() == ex_word {
+                    return false;
+                }
             }
-        }
-        if psh {
-            ret.push(word)
-        };
-    }
+            return true;
+        })
+        .collect();
     Ok(ret)
 }
 
@@ -37,17 +35,22 @@ pub fn exclude_hamming(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>
 
     let mut ham = Hamming::new();
 
-    let mut ret: Vec<String> = Vec::new();
-    for word in words {
-        if word_hamming_test(&word, &words3500, threshold, &mut ham) {
-            ret.push(word);
-        }
-    }
+    let ret: Vec<_> = words
+        .into_iter()
+        .filter(|word| word_hamming_test(&word.chars().collect(), &words3500, threshold, &mut ham))
+        .collect();
     Ok(ret)
 }
 
-fn word_hamming_test(word: &str, words3500: &String, threshold: f64, ham: &mut Hamming) -> bool {
+fn word_hamming_test(
+    word: &Vec<char>,
+    words3500: &String,
+    threshold: f64,
+    ham: &mut Hamming,
+) -> bool {
     for learned in words3500.lines() {
+        let learned: &Vec<char> = &learned.chars().collect();
+
         if threshold == 0 as f64 {
             if learned == word {
                 return false;

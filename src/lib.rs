@@ -11,13 +11,22 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &str> {
-        if args.len() != 2 {
-            return Err("Please input one argument as filename! ");
-        }
+    pub fn build<T>(mut args: T) -> Result<Config, &'static str>
+    where
+        T: Iterator<Item = String>,
+    {
+        args.next();
+
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Please input one argument as filename! "),
+        };
+
+        let is_shuffle = env::var("SHUFFLE").is_ok();
+
         Ok(Config {
-            filename: args[1].clone(),
-            is_shuffle: env::var("SHUFFLE").is_ok(),
+            filename,
+            is_shuffle,
         })
     }
 }

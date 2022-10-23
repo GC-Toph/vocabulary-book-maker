@@ -16,13 +16,11 @@ impl Hamming {
         return ret;
     }
 
-    pub fn dist(&mut self, a: &str, b: &str) -> usize {
+    pub fn dist(&mut self, a: &Vec<char>, b: &Vec<char>) -> usize {
         assert!(a.len() <= MAX_WORD_LENGTH && b.len() <= MAX_WORD_LENGTH);
 
         let m = a.len();
         let n = b.len();
-        let a: Vec<char> = a.chars().collect();
-        let b: Vec<char> = b.chars().collect();
 
         for i in 1..m + 1 {
             for j in 1..n + 1 {
