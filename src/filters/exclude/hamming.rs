@@ -16,7 +16,7 @@ impl Hamming {
         return ret;
     }
 
-    pub fn dist(&mut self, a: &Vec<char>, b: &Vec<char>) -> usize {
+    pub fn dist(&mut self, a: &[u8], b: &[u8]) -> usize {
         assert!(a.len() <= MAX_WORD_LENGTH && b.len() <= MAX_WORD_LENGTH);
 
         let m = a.len();

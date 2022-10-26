@@ -37,19 +37,14 @@ pub fn exclude_hamming(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>
 
     let ret: Vec<_> = words
         .into_iter()
-        .filter(|word| word_hamming_test(&word.chars().collect(), &words3500, threshold, &mut ham))
+        .filter(|word| word_hamming_test(word.as_bytes(), &words3500, threshold, &mut ham))
         .collect();
     Ok(ret)
 }
 
-fn word_hamming_test(
-    word: &Vec<char>,
-    words3500: &String,
-    threshold: f64,
-    ham: &mut Hamming,
-) -> bool {
+fn word_hamming_test(word: &[u8], words3500: &String, threshold: f64, ham: &mut Hamming) -> bool {
     for learned in words3500.lines() {
-        let learned: &Vec<char> = &learned.chars().collect();
+        let learned = learned.as_bytes();
 
         if threshold == 0 as f64 {
             if learned == word {
