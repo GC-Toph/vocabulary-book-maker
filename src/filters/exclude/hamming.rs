@@ -17,21 +17,25 @@ impl Hamming {
     }
 
     pub fn dist(&mut self, a: &[u8], b: &[u8]) -> usize {
-        assert!(a.len() <= MAX_WORD_LENGTH && b.len() <= MAX_WORD_LENGTH);
-
         let m = a.len();
         let n = b.len();
+        assert!(m <= MAX_WORD_LENGTH && n <= MAX_WORD_LENGTH);
 
         for i in 1..m + 1 {
             for j in 1..n + 1 {
-                let diff = match a[i - 1] != b[j - 1] {
-                    true => 1,
-                    false => 0,
-                };
-                self.arr[i][j] = min(
-                    min(self.arr[i - 1][j] + 1, self.arr[i][j - 1] + 1),
-                    self.arr[i - 1][j - 1] + diff,
-                );
+                unsafe {
+                    let diff = match a.get_unchecked(i - 1) != b.get_unchecked(j - 1) {
+                        true => 1,
+                        false => 0,
+                    };
+                    *self.arr.get_unchecked_mut(i).get_unchecked_mut(j) = min(
+                        min(
+                            *self.arr.get_unchecked(i - 1).get_unchecked(j) + 1,
+                            *self.arr.get_unchecked(i).get_unchecked(j - 1) + 1,
+                        ),
+                        *self.arr.get_unchecked(i - 1).get_unchecked(j - 1) + diff,
+                    );
+                }
             }
         }
         return self.arr[m][n];
