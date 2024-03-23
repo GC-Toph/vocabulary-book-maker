@@ -39,8 +39,6 @@ pub fn exclude_hamming(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>
             .filter(|word| word_test(word.as_bytes(), &words3500))
             .collect()
     } else {
-        // let mut ham = Hamming::new();
-
         words
             .into_par_iter()
             .filter(|word| {
