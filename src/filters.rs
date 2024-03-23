@@ -3,7 +3,7 @@ pub mod exclude;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use regex::Regex;
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::error::Error;
 use std::io;
 
@@ -17,21 +17,17 @@ pub fn main_filter(origin_text: String) -> Result<Vec<String>, Box<dyn Error>> {
 
     let re = Regex::new(r"[a-z]+ing ").unwrap();
     let ret = re.replace_all(ret.as_str(), " ");
-
     // let re = Regex::new(r"[a-z]+ed ").unwrap();
     // let re = Regex::new(r"[a-z]+ly ").unwrap();
     // let re = Regex::new(r"[a-z]+s ").unwrap();
+
     let list: Vec<&str> = ret.split(' ').collect();
-    let mut list_for_iter: Vec<&str> = Vec::new();
     //use hash map to stat freq
-    let mut hm: HashMap<&str, u32> = HashMap::new();
+    let mut hm: IndexMap<&str, u32> = IndexMap::new();
     let mut tot_num: u64 = 0;
     for ele in list {
         if ele.len() >= MIN_WORD_LENGTH && ele.len() <= MAX_WORD_LENGTH {
             let cnt = hm.entry(ele).or_insert(0);
-            if *cnt == 0u32 {
-                list_for_iter.push(ele);
-            }
             *cnt += 1;
             tot_num += 1;
         }
@@ -62,13 +58,8 @@ pub fn main_filter(origin_text: String) -> Result<Vec<String>, Box<dyn Error>> {
 
     //construct ret value
     let mut ret: Vec<String> = Vec::new();
-    // for (k, v) in hm {
-    //     if v >= freq {
-    //         ret.push(k);
-    //     }
-    // }
-    for k in list_for_iter {
-        if hm[k] >= freq {
+    for (k, v) in hm {
+        if v >= freq {
             ret.push(String::from(k));
         }
     }
