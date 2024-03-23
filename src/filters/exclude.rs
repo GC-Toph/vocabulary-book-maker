@@ -1,6 +1,7 @@
 mod hamming;
 
 use hamming::Hamming;
+use rayon::prelude::*;
 use std::cmp::max;
 use std::error::Error;
 use std::{fs, io};
@@ -32,30 +33,39 @@ pub fn exclude_hamming(words: Vec<String>) -> Result<Vec<String>, Box<dyn Error>
     if threshold_str.trim() != "" {
         threshold = threshold_str.trim().parse()?;
     }
+    let ret = if threshold == 0.0 {
+        words
+            .into_par_iter()
+            .filter(|word| word_test(word.as_bytes(), &words3500))
+            .collect()
+    } else {
+        // let mut ham = Hamming::new();
 
-    let mut ham = Hamming::new();
-
-    let ret: Vec<_> = words
-        .into_iter()
-        .filter(|word| word_hamming_test(word.as_bytes(), &words3500, threshold, &mut ham))
-        .collect();
+        words
+            .into_par_iter()
+            .filter(|word| {
+                word_hamming_test(word.as_bytes(), &words3500, threshold, &mut Hamming::new())
+            })
+            .collect()
+    };
     Ok(ret)
 }
 
 fn word_hamming_test(word: &[u8], words3500: &String, threshold: f64, ham: &mut Hamming) -> bool {
     for learned in words3500.lines() {
         let learned = learned.as_bytes();
+        if (ham.dist(learned, word) as f64) / (max(learned.len(), word.len()) as f64) <= threshold {
+            return false;
+        }
+    }
+    return true;
+}
 
-        if threshold == 0 as f64 {
-            if learned == word {
-                return false;
-            }
-        } else {
-            if (ham.dist(learned, word) as f64) / (max(learned.len(), word.len()) as f64)
-                <= threshold
-            {
-                return false;
-            }
+// threshold == 0 as f64
+fn word_test(word: &[u8], words3500: &String) -> bool {
+    for learned in words3500.lines() {
+        if learned.as_bytes() == word {
+            return false;
         }
     }
     return true;

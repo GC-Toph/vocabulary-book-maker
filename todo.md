@@ -1,4 +1,3 @@
 # Todo List
-~~### 1. HashMap in order~~
-### 2. Hamming Algo in concurrencies
-### 3. ...
+- [x] HashMap in order
+- [x] Hamming Algo in concurrencies
